@@ -1,17 +1,12 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+    <div class="p-6">
+        <h2 class="text-lg font-semibold">Welcome, {{ Auth::user()->name }}!</h2>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+        <!-- Display Profile Picture -->
+        <div class="mt-4">
+            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" class="w-32 h-32 rounded-full" alt="Profile Picture">
         </div>
+
+        <p class="mt-2">Role: <strong>{{ Auth::user()->role }}</strong></p>
     </div>
 </x-app-layout>
