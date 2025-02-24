@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('register', [UserController::class, 'showRegisterForm'])->name('register');
+Route::post('register', [UserController::class, 'register']);
+Route::get('trip/reserve', [TripController::class, 'showReserveForm'])->name('trip.reserve');
+Route::post('trip/reserve', [TripController::class, 'reserveTrip']);
+Route::post('driver/availability', [DriverAvailabilityController::class, 'updateAvailability'])->name('driver.availability');
 
 Route::get('/', function () {
     return view('welcome');
