@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h2>My Trips</h2>
+    <h2>Available Drivers</h2>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -11,30 +11,31 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Pickup Location</th>
-                <th>Destination</th>
-                <th>Pickup Date</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Driver</th>
+                <th>Location</th>
+                <th>Available From</th>
+                <th>Available Until</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($trips as $trip)
+            @foreach($drivers as $availability)
                 <tr>
-                    <td>{{ $trip->pickup_location }}</td>
-                    <td>{{ $trip->destination }}</td>
-                    <td>{{ $trip->pickup_date }}</td>
-                    <td>{{ ucfirst($trip->status) }}</td>
+                    <td>{{ $availability->driver->name }}</td>
+                    <td>{{ $availability->location }}</td>
+                    <td>{{ $availability->available_from }}</td>
+                    <td>{{ $availability->available_until }}</td>
                     <td>
-                        @if($trip->status === 'reserved' && now()->lt($trip->pickup_date))
-                            <form action="{{ route('trips.destroy', $trip->id) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger">Cancel</button>
-                            </form>
-                        @else
-                            N/A
-                        @endif
+                        <form action="{{ route('trips.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="driver_id" value="{{ $availability->driver->id }}">
+                            <input type="hidden" name="pickup_location" value="{{ $availability->location }}">
+                            <label>Destination:</label>
+                            <input type="text" name="destination" required>
+                            <label>Pickup Date:</label>
+                            <input type="datetime-local" name="pickup_date" required>
+                            <button type="submit" class="btn btn-primary">Book Trip</button>
+                        </form>
                     </td>
                 </tr>
             @endforeach

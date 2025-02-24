@@ -7,6 +7,25 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\DriverAvailabilityController;
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('trips', [TripController::class, 'index'])->name('trips.index');
+    Route::post('trips', [TripController::class, 'store'])->name('trips.store');
+    Route::get('trips/history', [TripController::class, 'history'])->name('trips.history');
+    Route::post('trips/{trip}/accept', [TripController::class, 'accept'])->name('trips.accept');
+    Route::post('trips/{trip}/reject', [TripController::class, 'reject'])->name('trips.reject');
+    Route::post('trips/{trip}/cancel', [TripController::class, 'cancel'])->name('trips.cancel');
+});
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('trips', [TripController::class, 'index'])->name('trips.index');
+    Route::post('trips', [TripController::class, 'store'])->name('trips.store');
+    Route::get('trips/history', [TripController::class, 'history'])->name('trips.history');
+    Route::post('trips/{trip}/accept', [TripController::class, 'accept'])->name('trips.accept');
+    Route::post('trips/{trip}/cancel', [TripController::class, 'cancel'])->name('trips.cancel');
+});
+
+
+Route::middleware(['auth'])->group(function () {
     Route::resource('drivers/availability', DriverAvailabilityController::class)->except(['edit', 'update', 'show']);
 });
 

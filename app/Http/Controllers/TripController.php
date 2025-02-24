@@ -3,37 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trip;
+use App\Models\DriverAvailability;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class TripController extends Controller
 {
     /**
-     * Show all trips for the logged-in user (history for passengers & drivers).
+     * Show available drivers.
      */
     public function index()
     {
-        $user = Auth::user();
-
-        // Get trips based on user role
-        $trips = ($user->role === 'passenger') 
-            ? Trip::where('user_id', $user->id)->get() 
-            : Trip::where('driver_id', $user->id)->get();
-
-        return view('trips.index', compact('trips'));
+        $drivers = DriverAvailability::where('is_available', true)->with('driver')->get();
+        return view('trips.index', compact('drivers'));
     }
 
     /**
-     * Show the form to book a trip.
-     */
-    public function create()
-    {
-        return view('trips.create');
-    }
-
-    /**
-     * Store a new trip reservation.
+     * Store a new trip request.
      */
     public function store(Request $request)
     {
@@ -41,30 +27,66 @@ class TripController extends Controller
             'pickup_location' => 'required|string|max:255',
             'destination' => 'required|string|max:255',
             'pickup_date' => 'required|date|after:now',
+            'driver_id' => 'nullable|exists:users,id',
         ]);
 
         Trip::create([
             'user_id' => Auth::id(),
+            'driver_id' => $request->driver_id,
             'pickup_location' => $request->pickup_location,
             'destination' => $request->destination,
-            'pickup_date' => Carbon::parse($request->pickup_date),
-            'status' => 'reserved',
+            'pickup_date' => $request->pickup_date,
+            'status' => 'pending',
         ]);
 
-        return redirect()->route('trips.index')->with('success', 'Trip booked successfully!');
+        return redirect()->route('trips.history')->with('success', 'Trip request sent!');
     }
 
     /**
-     * Cancel a trip (only before departure).
+     * Show trip history.
      */
-    public function destroy(Trip $trip)
+    public function history()
     {
-        if (Auth::id() !== $trip->user_id || Carbon::now()->gt($trip->pickup_date)) {
-            return redirect()->route('trips.index')->with('error', 'You cannot cancel this trip.');
+        $trips = Trip::where('user_id', Auth::id())->orWhere('driver_id', Auth::id())->get();
+        return view('trips.history', compact('trips'));
+    }
+
+    /**
+     * Accept a trip (Driver).
+     */
+    public function accept(Trip $trip)
+    {
+        if (Auth::id() !== $trip->driver_id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+    
+        $trip->update(['status' => 'reserved']);
+    
+        return redirect()->route('trips.history')->with('success', 'Trip accepted.');
+    }
+    
+    public function reject(Trip $trip)
+    {
+        if (Auth::id() !== $trip->driver_id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
+        }
+    
+        $trip->update(['status' => 'cancelled']);
+    
+        return redirect()->route('trips.history')->with('success', 'Trip rejected.');
+    }
+    
+    /**
+     * Cancel a trip.
+     */
+    public function cancel(Trip $trip)
+    {
+        if (Auth::id() !== $trip->user_id && Auth::id() !== $trip->driver_id) {
+            return redirect()->back()->with('error', 'Unauthorized action.');
         }
 
         $trip->update(['status' => 'cancelled']);
 
-        return redirect()->route('trips.index')->with('success', 'Trip cancelled successfully.');
+        return redirect()->route('trips.history')->with('success', 'Trip cancelled.');
     }
 }

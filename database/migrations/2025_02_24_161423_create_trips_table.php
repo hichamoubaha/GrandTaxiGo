@@ -9,12 +9,12 @@ return new class extends Migration {
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Passenger
-            $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('set null'); // Driver
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // Passenger ID
+            $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('set null'); // Driver ID
             $table->string('pickup_location');
             $table->string('destination');
             $table->timestamp('pickup_date');
-            $table->enum('status', ['reserved', 'completed', 'cancelled', 'pending'])->default('pending');
+            $table->enum('status', ['pending', 'reserved', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

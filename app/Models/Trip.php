@@ -13,7 +13,6 @@ class Trip extends Model
         'user_id', 'driver_id', 'pickup_location', 'destination', 'pickup_date', 'status'
     ];
 
-    // Relationships
     public function passenger()
     {
         return $this->belongsTo(User::class, 'user_id');
