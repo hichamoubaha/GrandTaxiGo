@@ -4,6 +4,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\DriverAvailabilityController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('drivers/availability', DriverAvailabilityController::class)->except(['edit', 'update', 'show']);
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('trips', TripController::class)->except(['edit', 'update', 'show']);
