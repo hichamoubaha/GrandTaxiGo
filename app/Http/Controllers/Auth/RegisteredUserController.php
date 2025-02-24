@@ -39,4 +39,13 @@ class RegisteredUserController extends Controller
 
         return redirect()->route('dashboard');
     }
+    public function create()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle a new user registration request.
+     */
+   
 }
